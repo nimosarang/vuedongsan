@@ -1,44 +1,46 @@
 <template>
-  <div class="black-bg" v-if="모달창열렸니 == true">
-    <div class="white-bg">
-      <h4>{{ oneRooms[누른거].title }}</h4>
-      <img :src="oneRooms[누른거].image" class="room-img" />
-      <p>{{ oneRooms[누른거].content }}</p>
-      <button @click="모달창열렸니 = false">닫기</button>
-    </div>
-  </div>
-
   <div class="menu">
     <a v-for="a in menus" :key="a">{{ a }}</a>
   </div>
 
-  <div
-    v-for="({ title, image, price }, index) in oneRooms"
-    :key="oneRooms[index].id"
-  >
-    <img :src="image" class="room-img" />
-    <h4
-      @click="
-        모달창열렸니 = true;
-        누른거 = index;
-      "
-    >
-      {{ title }}
-    </h4>
-    <p>{{ price }}원</p>
-    <button @click="increase(index)">허위매물 신고</button>
-    <span>신고수 : {{ 신고수[index] }}</span>
+  <div class="start" :class="{ end: 모달창열렸니 }">
+    <DetailModal
+      :oneRooms="oneRooms"
+      :누른거="누른거"
+      :모달창열렸니="모달창열렸니"
+      @bye="모달창열렸니 = false"
+    />
   </div>
+
+  <DiscountInfo />
+
+  <button @click="sortPrice">가격순 정렬</button>
+  <button @click="sortBack">원래대로</button>
+  <button @click="filter50man">50만원 이상만 보기</button>
+
+  <MainCard
+    @openModal="
+      모달창열렸니 = true;
+      누른거 = $event;
+    "
+    :oneRoom="oneRooms[i]"
+    v-for="(oneRoom, i) in oneRooms"
+    :key="i"
+  />
 </template>
 
 <script>
 import data from "./assets/oneroom.js";
+import DiscountInfo from "./Discount.vue";
+import DetailModal from "./DetailModal.vue";
+import MainCard from "./Card.vue";
 
 export default {
   name: "App",
   data() {
     return {
       누른거: 0,
+      oneRoomsOriginal: [...data],
       oneRooms: data,
       모달창열렸니: false,
       신고수: Array(data.length).fill(0),
@@ -46,11 +48,25 @@ export default {
     };
   },
   methods: {
-    increase(index) {
-      this.신고수[index]++;
+    sortBack() {
+      this.oneRooms = [...this.oneRoomsOriginal];
+    },
+    sortPrice() {
+      this.oneRooms.sort(function (a, b) {
+        return a.price - b.price;
+      });
+    },
+    filter50man() {
+      this.oneRooms = this.oneRoomsOriginal
+        .filter((a) => a.price >= 500000)
+        .sort((a, b) => a.price - b.price);
     },
   },
-  components: {},
+  components: {
+    DiscountInfo,
+    DetailModal,
+    MainCard,
+  },
 };
 </script>
 
@@ -61,6 +77,22 @@ body {
 div {
   box-sizing: border-box;
 }
+
+.start {
+  opacity: 0;
+  transition: all 1s;
+}
+.end {
+  opacity: 1;
+}
+
+.discount {
+  background: #eee;
+  padding: 10px;
+  margin: 10px;
+  border-radius: 5px;
+}
+
 .black-bg {
   width: 100%;
   height: 100%;
