@@ -12,7 +12,7 @@
     />
   </div>
 
-  <DiscountInfo />
+  <DiscountInfo :count="count" v-if="showDiscount == true" />
 
   <button @click="sortPrice">가격순 정렬</button>
   <button @click="sortBack">원래대로</button>
@@ -39,9 +39,11 @@ export default {
   name: "App",
   data() {
     return {
+      count: 5,
+      showDiscount: true,
       누른거: 0,
       oneRoomsOriginal: [...data],
-      oneRooms: data,
+      oneRooms: [...data],
       모달창열렸니: false,
       신고수: Array(data.length).fill(0),
       menus: ["Home", "Shop", "About"],
@@ -61,6 +63,15 @@ export default {
         .filter((a) => a.price >= 500000)
         .sort((a, b) => a.price - b.price);
     },
+  },
+  mounted() {
+    let interval = setInterval(() => {
+      this.count--;
+      if (this.count == 0) {
+        clearInterval(interval);
+        this.showDiscount = false;
+      }
+    }, 1000);
   },
   components: {
     DiscountInfo,
