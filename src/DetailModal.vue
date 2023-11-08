@@ -36,6 +36,12 @@ export default {
       }
     },
   },
+  beforeUpdate() {
+    if (this.month == 2) {
+      alert("2개월은 너무 적음.. 3개월부터");
+      this.month = 3;
+    }
+  },
   methods: {
     closeModal() {
       this.$emit("bye");
